@@ -1,11 +1,13 @@
 services:
   app:
-    build: ../
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
     container_name: todo-api-go
     ports: 
       - 8080:8080
     volumes:
-      - .:/app
+      - ../:/app
     depends_on: 
       - db
     environment:

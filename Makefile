@@ -9,5 +9,10 @@ run:
 dev:
 	docker compose -f docker/docker-compose.yml up -d db && make run
 
+
+
 down:
 	docker compose -f docker/docker-compose.yml down
+
+db-up:
+	docker compose -f docker/docker-compose.yml up -d db
