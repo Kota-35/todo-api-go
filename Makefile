@@ -1,15 +1,10 @@
-.PHONY: build run dev
+.PHONY: build run down db-up
 
 build:
 	go build -o bin/server cmd/server/main.go
 
 run:
 	go run cmd/server/main.go
-
-dev:
-	docker compose -f docker/docker-compose.yml up -d db && make run
-
-
 
 down:
 	docker compose -f docker/docker-compose.yml down
