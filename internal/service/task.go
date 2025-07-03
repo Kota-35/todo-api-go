@@ -43,3 +43,19 @@ func (s *TaskService) GetById(id string) (db.TaskModel, error) {
 
 	return *todo, nil
 }
+
+func (s *TaskService) Update(id string, title, description, status string) (db.TaskModel, error) {
+	updatedTask, err := database.PrismaClient.Task.FindUnique(
+		db.Task.ID.Equals(id),
+	).Update(
+		db.Task.Title.Set(title),
+		db.Task.Description.Set(description),
+		db.Task.Status.Set(db.Status(status)),
+	).Exec(context.Background())
+
+	if err != nil {
+		return db.TaskModel{}, err
+	}
+
+	return *updatedTask, nil
+}
