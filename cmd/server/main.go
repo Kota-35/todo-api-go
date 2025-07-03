@@ -2,6 +2,7 @@ package main
 
 import (
 	"todo-api-go/internal/handler/todo"
+	"todo-api-go/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,9 +10,14 @@ import (
 func main() {
 	router := gin.Default()
 
-	router.GET("/todos", func(c *gin.Context) {
-		todo.GetAllTodos(c)
-	})
+	todoService := service.TodoService{}
+
+	todoHandler := todo.NewHandler(&todoService)
+
+	v1 := router.Group("/api/v1")
+	{
+		todoHandler.RegisterRoutes(v1)
+	}
 
 	router.Run(":8080")
 }

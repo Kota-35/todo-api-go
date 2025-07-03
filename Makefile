@@ -11,3 +11,6 @@ down:
 
 db-up:
 	docker compose -f docker/docker-compose.yml up -d db
+
+db-push:
+	go run github.com/steebchen/prisma-client-go db push
