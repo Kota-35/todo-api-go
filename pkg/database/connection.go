@@ -2,4 +2,11 @@ package database
 
 import "todo-api-go/prisma/db"
 
-var PrismaClient = db.NewClient()
+func CreateConnection() *db.PrismaClient {
+	prismaClient := db.NewClient()
+	prismaClient.Connect()
+
+	return prismaClient
+}
+
+var PrismaClient = CreateConnection()
