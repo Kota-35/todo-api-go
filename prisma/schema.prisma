@@ -8,10 +8,17 @@ generator db {
 }
 
 model Task {
-    id        String   @id @default(uuid())
-    title      String?
+    id          String   @id @default(uuid())
+    title       String?
     description String?
-    status      String? @default("pending")
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    status      Status   @default(PENDING)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+}
+
+enum Status {
+    PENDING
+    IN_PROGRESS
+    NOT_STARTED
+    COMPLETED
 }

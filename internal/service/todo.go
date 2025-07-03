@@ -22,7 +22,7 @@ func (s *TodoService) Create(title, description, status string) (db.TaskModel, e
 	todo, err := database.PrismaClient.Task.CreateOne(
 		db.Task.Title.Set(title),
 		db.Task.Description.Set(description),
-		db.Task.Status.Set(status),
+		db.Task.Status.Set(db.Status(status)),
 	).Exec(context.Background())
 
 	if err != nil {
