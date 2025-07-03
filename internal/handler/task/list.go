@@ -1,4 +1,4 @@
-package todo
+package task
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 )
 
 func (h *Handler) List(c *gin.Context) {
-	tasks, err := h.todoService.GetAllTodos()
+	tasks, err := h.taskService.GetAllTodos()
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

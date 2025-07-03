@@ -1,4 +1,4 @@
-package todo
+package task
 
 import (
 	"net/http"
@@ -20,7 +20,7 @@ func (h *Handler) Create(c *gin.Context) {
 		return
 	}
 
-	todo, err := h.todoService.Create(req.Title, req.Description, req.Status)
+	todo, err := h.taskService.Create(req.Title, req.Description, req.Status)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
