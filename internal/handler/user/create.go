@@ -7,11 +7,9 @@ import (
 )
 
 type CreateRequest struct {
-	Email     string `json:"email" binding:"required"`
-	Username  string `json:"username" binding:"required"`
-	Password  string `json:"password" binding:"required"`
-	FirstName string `json:"firstName" binding:"required"`
-	LastName  string `json:"lastName" binding:"required"`
+	Email    string `json:"email" binding:"required"`
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 
 func (h *UserHandler) Create(c *gin.Context) {
@@ -21,7 +19,7 @@ func (h *UserHandler) Create(c *gin.Context) {
 		return
 	}
 
-	response, err := h.userService.Register(req.Email, req.Username, req.Password, req.FirstName, req.LastName)
+	response, err := h.userService.Register(req.Email, req.Username, req.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -16,8 +16,6 @@ type AuthResponse struct {
 	UserID    string    `json:"user_id"`
 	Email     string    `json:"email"`
 	Username  string    `json:"username"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
 }
 
 type UserService struct {
@@ -45,7 +43,7 @@ func (u *UserService) generateToken(userId string) (string, time.Time, error) {
 	return tokenString, expiresAt, nil
 }
 
-func (u *UserService) Register(email string, username string, password string, firstName string, lastName string) (*AuthResponse, error) {
+func (u *UserService) Register(email string, username string, password string) (*AuthResponse, error) {
 
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -56,8 +54,6 @@ func (u *UserService) Register(email string, username string, password string, f
 		db.User.Email.Set(email),
 		db.User.Username.Set(username),
 		db.User.PasswordHash.Set(string(passwordHash)),
-		db.User.FirstName.Set(firstName),
-		db.User.LastName.Set(lastName),
 	).Exec(context.Background())
 
 	if err != nil {
@@ -75,8 +71,6 @@ func (u *UserService) Register(email string, username string, password string, f
 		UserID:    user.ID,
 		Email:     user.Email,
 		Username:  user.Username,
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
 	}, nil
 }
 
@@ -103,8 +97,6 @@ func (u *UserService) Login(email string, password string) (*AuthResponse, error
 		UserID:    user.ID,
 		Email:     user.Email,
 		Username:  user.Username,
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
 	}, nil
 
 }
