@@ -12,8 +12,8 @@ import (
 
 type AuthResponse struct {
 	Token     string    `json:"token"`
-	ExpiresAt time.Time `json:"expires_at"`
-	UserID    string    `json:"user_id"`
+	ExpiresAt time.Time `json:"expiresAt"`
+	UserID    string    `json:"userId"`
 	Email     string    `json:"email"`
 	Username  string    `json:"username"`
 }
