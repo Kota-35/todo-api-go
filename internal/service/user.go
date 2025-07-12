@@ -45,6 +45,12 @@ func (u *UserService) generateToken(userId string) (string, time.Time, error) {
 
 func (u *UserService) Register(email string, username string, password string) (*AuthResponse, error) {
 
+	// NOTE: メールアドレスの重複チェック
+	existing, _ := database.PrismaClient.User.FindUnique(db.User.Email.Equals(email)).Exec(context.Background())
+	if existing != nil {
+		return nil, &ErrDuplicateEmail{Email: email}
+	}
+
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err

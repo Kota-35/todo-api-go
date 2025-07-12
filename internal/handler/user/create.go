@@ -2,6 +2,7 @@ package user
 
 import (
 	"net/http"
+	"todo-api-go/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,8 +22,16 @@ func (h *UserHandler) Create(c *gin.Context) {
 
 	response, err := h.userService.Register(req.Email, req.Username, req.Password)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+		switch e := err.(type) {
+		// NOTE: 重複の場合は409を返す
+		case *service.ErrDuplicateEmail:
+			c.JSON(http.StatusConflict, gin.H{"error": e.Error()})
+			return
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": e.Error()})
+			return
+		}
+
 	}
 
 	c.JSON(http.StatusCreated, response)
