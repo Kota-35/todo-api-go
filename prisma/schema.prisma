@@ -7,13 +7,53 @@ generator db {
     provider = "go run github.com/steebchen/prisma-client-go"
 }
 
+// Team model: チーム情報の管理
+model Team {
+    id String @id @default(uuid())
+    name String 
+    description  String?
+    ownerId String
+    createdAt DateTime @default(now())
+    updateAt DateTime @updatedAt
+
+    // Relations
+    owner User @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+    members TeamMember[]
+    projects Project[]
+
+    @@unique([ownerId, name]) // 同じオーナー下で重複名を禁止
+
+}
+
+// TeamMember model: チームメンバー管理
+model TeamMember {
+    id String @id @default(uuid())
+    teamId String
+    userId String
+    role TeamMemberRole @default(member)
+    joinedAt DateTime @default(now())
+
+    // Relations 
+    team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([teamId, userId])
+}
+
+enum TeamMemberRole {
+    owner 
+    admin
+    member 
+    viewer
+}
+
 // User model: ユーザー情報の管理
 model User {
     id           String   @id @default(uuid())
     email        String   @unique
     username     String
     passwordHash String
-    abaterUrl    String?
+    avatarUrl    String?
     isActive     Boolean  @default(true)
     createdAt    DateTime @default(now())
     updatedAt    DateTime @updatedAt
@@ -27,6 +67,8 @@ model User {
     attachments    Attachment[]
     taskActivities TaskActivity[]
     refreshTokens  RefreshToken[]
+    ownedTeams Team[] @relation("TeamOwner") // 自分がオーナーのチーム
+    teamMemberships TeamMember[] // 参加しているツーム
 }
 
 // Project model: プロジェクト管理
@@ -36,15 +78,18 @@ model Project {
     description String?
     color       String   @default("#d1ffd1")
     ownerId     String
+    teamId String? // チームの所有も可能にする
     createdAt   DateTime @default(now())
     updatedAt   DateTime @default(now())
 
     // Relations
     owner        User            @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+    team Team? @relation(fields: [teamId], references: [id], onDelete: Cascade)
     members      ProjectMember[]
     tasks        Task[]
     taskStatuses TaskStatus[]
     tags         Tag[]
+    
 }
 
 // ProjectMember model: プロジェクトメンバー管理
