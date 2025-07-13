@@ -14,7 +14,7 @@ model Team {
     description  String?
     ownerId String
     createdAt DateTime @default(now())
-    updateAt DateTime @updatedAt
+    updatedAt DateTime @updatedAt
 
     // Relations
     owner User @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: Cascade)
@@ -65,7 +65,7 @@ model User {
     comments       Comment[]
     attachments    Attachment[]
     taskActivities TaskActivity[]
-    refreshTokens  RefreshToken[]
+    sessions  Session[]
     ownedTeams Team[] @relation("TeamOwner") // 自分がオーナーのチーム
     teamMemberships TeamMember[] // 参加しているツーム
 }
@@ -79,7 +79,7 @@ model Project {
     ownerId     String
     teamId String? // チームの所有も可能にする
     createdAt   DateTime @default(now())
-    updatedAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
 
     // Relations
     owner        User            @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Cascade)
@@ -232,14 +232,18 @@ model TaskActivity {
     task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
 }
 
-model RefreshToken {
+model Session {
     id        String   @id @default(uuid())
     userId    String
-    tokenHash String
+    tokenHash String   @unique
     expiresAt DateTime
     createdAt DateTime @default(now())
     isRevoked Boolean  @default(false)
 
     // Relations
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+
+    // 「そのユーザーの有効トークン」を高速検索
+    @@index([userId, expiresAt])
 }
