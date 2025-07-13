@@ -4,6 +4,7 @@
         "editor.defaultFormatter": "Prisma.prisma"
     },
     "cSpell.words": [
+        "stretchr",
         "valueobject"
     ],
 }
