@@ -2,28 +2,54 @@ package main
 
 import (
 	"os"
+	"time"
+
+	"todo-api-go/internal/application/usecase/auth"
 	"todo-api-go/internal/application/usecase/user"
+	"todo-api-go/internal/domain/security"
+	"todo-api-go/internal/domain/valueobject"
 	"todo-api-go/internal/infrastructure/persistence/repository"
+
+	sessionHandler "todo-api-go/internal/interface/api/handler/session"
 	userHandler "todo-api-go/internal/interface/api/handler/user"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	// 環境変数の取得
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		jwtSecret = "default-secret-key" // 開発用デフォルト値
+	}
 
 	// リポジトリの初期化
 	userRepo := repository.NewUserRepository()
+	sessionRepo := repository.NewSessionRepository()
+	jwtGenerator := security.NewJWTGenerator(jwtSecret)
+	refreshTokenGenerator := security.NewRefreshTokenGenerator()
+
+	// 認証用設定
+	pepper := valueobject.Pepper([]byte("default-pepper-key"))
+	sessionTTL := 24 * time.Hour // 24時間
 
 	// ユースケースの初期化
 	registerUserUseCase := user.NewRegisterUserUseCase(userRepo)
+	authenticateUserUseCase := auth.NewAuthenticateUserUseCase(
+		userRepo,
+		sessionRepo,
+		jwtGenerator,
+		refreshTokenGenerator,
+		pepper,
+		sessionTTL,
+	)
 
 	// ハンドラーの初期化
 	registerUserHandler := userHandler.NewRegisterUserHandler(registerUserUseCase)
-	userHandlerInstance := userHandler.NewHandler(registerUserHandler)
+	userHandlerInstance := userHandler.NewUserHandler(registerUserHandler)
 
-	// 環境変数の取得
-	jwtSecret := os.Getenv("JWT_SECRET")
-	_ = jwtSecret // 将来的に使用予定
+	loginUserHandler := sessionHandler.NewLoginUserHandler(authenticateUserUseCase)
+	sessionHandler := sessionHandler.NewSessionHandler(loginUserHandler)
 
 	// Ginルーターの初期化
 	router := gin.Default()
@@ -32,6 +58,7 @@ func main() {
 	v1 := router.Group("/api/v1")
 	{
 		userHandlerInstance.RegisterRoutes(v1)
+		sessionHandler.RegisterRoutes(v1)
 	}
 
 	// サーバーの起動
