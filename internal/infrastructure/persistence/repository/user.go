@@ -6,6 +6,7 @@ import (
 	"strings"
 	"todo-api-go/internal/domain/entity"
 	"todo-api-go/internal/domain/repository"
+	valueobject "todo-api-go/internal/domain/valueobject"
 	"todo-api-go/pkg/database"
 
 	domainError "todo-api-go/internal/domain/error"
@@ -61,4 +62,32 @@ func (r *userRepository) Save(user *entity.User) error {
 
 	return nil
 
+}
+
+func (r *userRepository) FindByEmail(email valueobject.Email) (*entity.User, error) {
+	ctx := context.Background()
+
+	user, err := r.client.User.FindUnique(
+		db.User.Email.Equals(email.String()),
+	).Exec(ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf("[userRepository.FindByEmail]ユーザーの取得に失敗しました: %w", err)
+	}
+
+	reconstructUser, err := entity.ReconstructUser(
+		user.ID,
+		user.Email,
+		user.Username,
+		user.PasswordHash,
+		user.IsActive,
+		user.CreatedAt,
+		user.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("[[userRepository.FindByEmail]ドメインモデルの変換に失敗しました: %w", err)
+	}
+
+	return reconstructUser, nil
 }

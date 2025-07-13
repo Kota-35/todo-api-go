@@ -2,6 +2,7 @@ package repository
 
 import (
 	"todo-api-go/internal/domain/entity"
+	valueobject "todo-api-go/internal/domain/valueobject"
 )
 
 // リポジトリインターフェース
@@ -22,6 +23,6 @@ type UserRepository interface {
 	// 基本的なCRUD操作
 	Save(user *entity.User) error
 	// FindByID(id string) (*entity.User, error)
-	// FindByEmail(email valueobject.Email) (*entity.User, error)
+	FindByEmail(email valueobject.Email) (*entity.User, error)
 	// Delete(id string) error
 }

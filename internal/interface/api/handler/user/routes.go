@@ -8,7 +8,7 @@ type UserHandler struct {
 	registerUserHandler *RegisterUserHandler
 }
 
-func NewHandler(registerUserHandler *RegisterUserHandler) *UserHandler {
+func NewUserHandler(registerUserHandler *RegisterUserHandler) *UserHandler {
 	return &UserHandler{
 		registerUserHandler: registerUserHandler,
 	}

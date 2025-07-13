@@ -6,7 +6,7 @@ import (
 	"time"
 	domainErr "todo-api-go/internal/domain/error"
 
-	valueobject "todo-api-go/internal/domain/valueObject"
+	valueobject "todo-api-go/internal/domain/valueobject"
 )
 
 type User struct {
@@ -151,4 +151,11 @@ func (u *User) IsActive() bool {
 
 func (u *User) UpdatedAt() time.Time {
 	return u.updatedAt
+}
+
+// パスワードがあっているか検証
+func (u *User) VerifyPassword(plainPassword string) bool {
+	collectPassword := valueobject.RestorePassword(u.passwordHash)
+
+	return collectPassword.Verify(plainPassword)
 }
