@@ -24,12 +24,12 @@ func (uc *RegisterUserUseCase) Execute(input userDTO.RegisterUserInput) (*userDT
 	// ドメインエンティティの作成
 	user, err := entity.NewUser(input.Email, input.Username, input.Password)
 	if err != nil {
-		return nil, fmt.Errorf("ユーザーの作成に失敗しました: %w", err)
+		return nil, fmt.Errorf("[RegisterUserUseCase]ユーザーのドメインエンティティの作成に失敗しました: %w", err)
 	}
 
 	// 永続化
 	if err := uc.userRepo.Save(user); err != nil {
-		return nil, fmt.Errorf("ユーザーの作成に失敗しました] %w", err)
+		return nil, fmt.Errorf("[RegisterUserUseCase]ユーザーの永続化に失敗しました: %w", err)
 	}
 
 	// 出力DTOの作成

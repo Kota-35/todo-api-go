@@ -3,9 +3,12 @@ package repository
 import (
 	"context"
 	"fmt"
+	"strings"
 	"todo-api-go/internal/domain/entity"
 	"todo-api-go/internal/domain/repository"
 	"todo-api-go/pkg/database"
+
+	domainError "todo-api-go/internal/domain/error"
 
 	"todo-api-go/prisma/db"
 )
@@ -33,7 +36,10 @@ func (r *userRepository) Save(user *entity.User) error {
 		).Exec(ctx)
 
 		if err != nil {
-			return fmt.Errorf("ユーザーの作成に失敗しました: %w", err)
+			if strings.Contains(err.Error(), "Unique constraint failed on the fields: (`email`)") {
+				return domainError.NewDuplicateEmailError(user.Email().String())
+			}
+			return fmt.Errorf("[userRepository]ユーザーの作成に失敗しました: %w", err)
 		}
 
 		return user.SetID(createdUser.ID)
@@ -49,7 +55,7 @@ func (r *userRepository) Save(user *entity.User) error {
 		).Exec(ctx)
 
 		if err != nil {
-			return fmt.Errorf("ユーザーの更新に失敗しました: %w", err)
+			return fmt.Errorf("[userRepository]ユーザーの更新に失敗しました: %w", err)
 		}
 	}
 
