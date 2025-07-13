@@ -76,3 +76,15 @@ func InternalServerError(c *gin.Context, message string, err error) {
 		},
 	})
 }
+
+func UnauthorizedError(c *gin.Context, message string, err error) {
+	c.JSON(http.StatusUnauthorized, APIResponse{
+		Success: false,
+		Message: message,
+		Error: &ErrorInfo{
+			Code:    "UNAUTHORIZED",
+			Message: message,
+			Details: err.Error(),
+		},
+	})
+}
