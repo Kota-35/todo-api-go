@@ -31,7 +31,6 @@ func (uc *GetCurrentSessionUseCase) Execute(input authDTO.GetCurrentSessionInput
 		return nil, fmt.Errorf("[GetCurrentSessionUseCase]トークンの検証に失敗しました: %w", err)
 	}
 
-	fmt.Println("✅UserId: ", claims.UserID)
 	user, err := uc.userRepo.FindByID(claims.UserID)
 
 	if err != nil {

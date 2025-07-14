@@ -95,7 +95,6 @@ func (r *userRepository) FindByEmail(email valueobject.Email) (*entity.User, err
 func (r *userRepository) FindByID(id string) (*entity.User, error) {
 	ctx := context.Background()
 
-	fmt.Println("✅UserId", id)
 	user, err := r.client.User.FindUnique(
 		db.User.ID.Equals(id),
 	).Exec(ctx)

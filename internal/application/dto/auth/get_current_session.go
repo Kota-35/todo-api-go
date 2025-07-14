@@ -17,7 +17,7 @@ type GetCurrentSessionOutputUser struct {
 	Username  string    `json:"username"`
 	Email     string    `json:"email"`
 	IsActive  bool      `json:"isActive"`
-	CreatedAt time.Time `json:"createdAT"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 type GetCurrentSessionOutputToken struct {
