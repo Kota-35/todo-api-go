@@ -91,3 +91,32 @@ func (r *userRepository) FindByEmail(email valueobject.Email) (*entity.User, err
 
 	return reconstructUser, nil
 }
+
+func (r *userRepository) FindByID(id string) (*entity.User, error) {
+	ctx := context.Background()
+
+	fmt.Println("✅UserId", id)
+	user, err := r.client.User.FindUnique(
+		db.User.ID.Equals(id),
+	).Exec(ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf("[userRepository.FindById]ユーザーの取得に失敗しました: %w", err)
+	}
+
+	reconstructUser, err := entity.ReconstructUser(
+		user.ID,
+		user.Email,
+		user.Username,
+		user.PasswordHash,
+		user.IsActive,
+		user.CreatedAt,
+		user.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("[[userRepository.FindByEmail]ドメインモデルの変換に失敗しました: %w", err)
+	}
+
+	return reconstructUser, nil
+}
