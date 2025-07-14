@@ -26,7 +26,7 @@ type ErrorInfo struct {
 	Details string `json:"details,omitempty"`
 }
 
-func OK(c *gin.Context, message string, data interface{}) {
+func OK(c *gin.Context, message string, data any) {
 	c.JSON(http.StatusOK, APIResponse{
 		Success: true,
 		Message: message,
