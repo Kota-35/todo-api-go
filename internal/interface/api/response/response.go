@@ -88,3 +88,15 @@ func UnauthorizedError(c *gin.Context, message string, err error) {
 		},
 	})
 }
+
+func AbortWithUnauthorizedError(c *gin.Context, message string, err error) {
+	c.AbortWithStatusJSON(http.StatusUnauthorized, APIResponse{
+		Success: false,
+		Message: message,
+		Error: &ErrorInfo{
+			Code:    "UNAUTHORIZED",
+			Message: message,
+			Details: err.Error(),
+		},
+	})
+}

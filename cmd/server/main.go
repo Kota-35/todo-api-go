@@ -40,13 +40,15 @@ func main() {
 		refreshTokenGenerator,
 		pepper,
 	)
+	getCurrentSessionUseCase := auth.NewGetCurrentSessionUseCase(jwtGenerator, userRepo)
 
 	// ハンドラーの初期化
 	registerUserHandler := userHandler.NewRegisterUserHandler(registerUserUseCase)
 	userHandlerInstance := userHandler.NewUserHandler(registerUserHandler)
 
 	loginUserHandler := sessionHandler.NewLoginUserHandler(authenticateUserUseCase)
-	sessionHandler := sessionHandler.NewSessionHandler(loginUserHandler)
+	getCurrentSessionHandler := sessionHandler.NewGetCurrentSessionHandler(*getCurrentSessionUseCase)
+	sessionHandler := sessionHandler.NewSessionHandler(loginUserHandler, getCurrentSessionHandler)
 
 	// Ginルーターの初期化
 	router := gin.Default()
