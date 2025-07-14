@@ -12,13 +12,15 @@ import (
 	domainError "todo-api-go/internal/domain/error"
 )
 
+const AccessTokenTTL = 15 * time.Minute    // 15分
+const RefreshTokenTTL = 7 * 24 * time.Hour // 7日
+
 type AuthenticateUserUseCase struct {
 	userRepo        repository.UserRepository
 	sessionRepo     repository.SessionRepository
 	jwtGenerator    security.JWTGenerator
 	refreshTokenGen security.RefreshTokenGenerator
 	pepper          valueobject.Pepper
-	sessionTTL      time.Duration
 }
 
 func NewAuthenticateUserUseCase(
@@ -27,7 +29,6 @@ func NewAuthenticateUserUseCase(
 	jwtGenerator security.JWTGenerator,
 	refreshTokenGen security.RefreshTokenGenerator,
 	pepper valueobject.Pepper,
-	sessionTTL time.Duration,
 ) *AuthenticateUserUseCase {
 	return &AuthenticateUserUseCase{
 		userRepo:        userRepo,
@@ -35,7 +36,6 @@ func NewAuthenticateUserUseCase(
 		jwtGenerator:    jwtGenerator,
 		refreshTokenGen: refreshTokenGen,
 		pepper:          pepper,
-		sessionTTL:      sessionTTL,
 	}
 }
 
@@ -72,8 +72,9 @@ func (uc *AuthenticateUserUseCase) Execute(input authDTO.AuthenticateUserInput) 
 		user.ID(),
 		refreshToken,
 		uc.pepper,
-		uc.sessionTTL,
+		RefreshTokenTTL,
 	)
+
 	if err != nil {
 		return nil, fmt.Errorf("セッションの作成に失敗しました: %w", err)
 	}
@@ -83,11 +84,13 @@ func (uc *AuthenticateUserUseCase) Execute(input authDTO.AuthenticateUserInput) 
 		return nil, fmt.Errorf("セッションの永続化に失敗しました: %w", err)
 	}
 
+	accessTokenExpiresAt := time.Now().Add(AccessTokenTTL)
+
 	// アクセストークンの生成
 	accessToken, err := uc.jwtGenerator.GenerateAccessToken(
 		user.ID(),
 		session.ID(),
-		session.ExpiresAt(),
+		accessTokenExpiresAt,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("アクセストークンの生成に失敗しました: %w", err)
@@ -95,8 +98,9 @@ func (uc *AuthenticateUserUseCase) Execute(input authDTO.AuthenticateUserInput) 
 
 	// レスポンスの作成
 	return &authDTO.AuthenticateUserOutput{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken, // 平文のトークンを返す
-		ExpiresAt:    session.ExpiresAt(),
+		AccessToken:           accessToken,
+		AccessTokenExpiresAt:  accessTokenExpiresAt,
+		RefreshToken:          refreshToken, // 平文のトークンを返す
+		RefreshTokenExpiresAt: session.ExpiresAt(),
 	}, nil
 }

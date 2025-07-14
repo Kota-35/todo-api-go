@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"time"
 
 	"todo-api-go/internal/application/usecase/auth"
 	"todo-api-go/internal/application/usecase/user"
@@ -31,7 +30,6 @@ func main() {
 
 	// 認証用設定
 	pepper := valueobject.Pepper([]byte("default-pepper-key"))
-	sessionTTL := 24 * time.Hour // 24時間
 
 	// ユースケースの初期化
 	registerUserUseCase := user.NewRegisterUserUseCase(userRepo)
@@ -41,7 +39,6 @@ func main() {
 		jwtGenerator,
 		refreshTokenGenerator,
 		pepper,
-		sessionTTL,
 	)
 
 	// ハンドラーの初期化

@@ -1,7 +1,9 @@
 package session
 
 import (
+	"time"
 	"todo-api-go/internal/application/usecase/auth"
+	"todo-api-go/internal/config"
 	"todo-api-go/internal/interface/api/response"
 
 	"github.com/gin-gonic/gin"
@@ -42,6 +44,54 @@ func (h *LoginUserHandler) Handle(c *gin.Context) {
 		return
 	}
 
-	response.OK(c, "ログインに成功しました", output)
+	cfg := config.LoadEnv()
 
+	if cfg.Env == "development" {
+		// AccessTokenクッキーの設定
+		c.SetCookie(
+			"__Host-session",
+			output.AccessToken,
+			int(time.Until(output.AccessTokenExpiresAt).Seconds()),
+			"/",
+			"localhost",
+			false, // developmentではHTTPSを使わない場合があるためfalse
+			true,
+		)
+
+		// RefreshTokenクッキーの設定
+		c.SetCookie(
+			"__Host-refresh",
+			output.RefreshToken,
+			int(time.Until(output.RefreshTokenExpiresAt).Seconds()),
+			"/",
+			"localhost",
+			false, // developmentではHTTPSを使わない場合があるためfalse
+			true,
+		)
+
+	} else if cfg.Env == "production" {
+		// AccessTokenクッキーの設定
+		c.SetCookie(
+			"__Host-session",
+			output.AccessToken,
+			int(time.Until(output.AccessTokenExpiresAt).Seconds()),
+			"/",
+			"localhost", // productionでは適切なドメインに変更
+			true,
+			true,
+		)
+
+		// RefreshTokenクッキーの設定
+		c.SetCookie(
+			"__Host-refresh",
+			output.RefreshToken,
+			int(time.Until(output.RefreshTokenExpiresAt).Seconds()),
+			"/",
+			"localhost", // productionでは適切なドメインに変更
+			true,
+			true,
+		)
+	}
+
+	response.OK(c, "ログインしました", nil)
 }
