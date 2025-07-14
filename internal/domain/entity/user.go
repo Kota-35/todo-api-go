@@ -153,6 +153,10 @@ func (u *User) UpdatedAt() time.Time {
 	return u.updatedAt
 }
 
+func (u *User) CreatedAt() time.Time {
+	return u.createdAt
+}
+
 // パスワードがあっているか検証
 func (u *User) VerifyPassword(plainPassword string) bool {
 	collectPassword := valueobject.RestorePassword(u.passwordHash)
