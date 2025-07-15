@@ -5,12 +5,18 @@ import "github.com/gin-gonic/gin"
 type SessionHandler struct {
 	loginUserHandler         *LoginUserHandler
 	getCurrentSessionHandler *GetCurrentSessionHandler
+	sessionRefreshHandler    *SessionRefreshHandler
 }
 
-func NewSessionHandler(loginUserHandler *LoginUserHandler, getCurrentSessionHandler *GetCurrentSessionHandler) *SessionHandler {
+func NewSessionHandler(
+	loginUserHandler *LoginUserHandler,
+	getCurrentSessionHandler *GetCurrentSessionHandler,
+	sessionRefreshHandler *SessionRefreshHandler,
+) *SessionHandler {
 	return &SessionHandler{
 		loginUserHandler:         loginUserHandler,
 		getCurrentSessionHandler: getCurrentSessionHandler,
+		sessionRefreshHandler:    sessionRefreshHandler,
 	}
 }
 
@@ -19,5 +25,6 @@ func (h *SessionHandler) RegisterRoutes(r *gin.RouterGroup) {
 	{
 		sessions.POST("", h.loginUserHandler.Handle)
 		sessions.GET("/me", h.getCurrentSessionHandler.Handle)
+		sessions.POST("/refresh", h.sessionRefreshHandler.Handle)
 	}
 }

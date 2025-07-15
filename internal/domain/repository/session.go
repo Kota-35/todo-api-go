@@ -2,7 +2,7 @@ package repository
 
 import (
 	"todo-api-go/internal/domain/entity"
-	valueobject "todo-api-go/internal/domain/valueobject"
+	"todo-api-go/internal/domain/valueobject"
 )
 
 type SessionRepository interface {

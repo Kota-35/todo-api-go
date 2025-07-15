@@ -19,7 +19,9 @@ func NewRegisterUserUseCase(
 	}
 }
 
-func (uc *RegisterUserUseCase) Execute(input userDTO.RegisterUserInput) (*userDTO.RegisterUserOutput, error) {
+func (uc *RegisterUserUseCase) Execute(
+	input userDTO.RegisterUserInput,
+) (*userDTO.RegisterUserOutput, error) {
 
 	// ドメインエンティティの作成
 	user, err := entity.NewUser(input.Email, input.Username, input.Password)

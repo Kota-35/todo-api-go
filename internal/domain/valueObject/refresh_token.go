@@ -24,16 +24,19 @@ type RefreshToken struct {
 	hashedValue string
 }
 
-func NewRefreshToken(plainRefreshToken string, pepper Pepper) (RefreshToken, error) {
+func NewRefreshToken(
+	plainRefreshToken string,
+	pepper Pepper,
+) (*RefreshToken, error) {
 	if err := validateRefreshToken(plainRefreshToken); err != nil {
-		return RefreshToken{}, err
+		return nil, err
 	}
 
 	mac := hmac.New(sha256.New, pepper.deriveKey())
 	mac.Write([]byte(plainRefreshToken))
 	sum := mac.Sum(nil)
 
-	return RefreshToken{
+	return &RefreshToken{
 		hashedValue: hex.EncodeToString(sum),
 	}, nil
 

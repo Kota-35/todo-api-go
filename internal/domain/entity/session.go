@@ -92,3 +92,7 @@ func (s *Session) SetID(id string) error {
 func (s *Session) ID() string {
 	return s.id
 }
+
+func (s *Session) IsRevoked() bool {
+	return s.isRevoked
+}
