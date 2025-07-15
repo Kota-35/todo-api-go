@@ -17,7 +17,9 @@ type LoginUserHandler struct {
 	authenticateUserUserCase *auth.AuthenticateUserUseCase
 }
 
-func NewLoginUserHandler(authenticationUserUseCase *auth.AuthenticateUserUseCase) *LoginUserHandler {
+func NewLoginUserHandler(
+	authenticationUserUseCase *auth.AuthenticateUserUseCase,
+) *LoginUserHandler {
 	return &LoginUserHandler{
 		authenticateUserUserCase: authenticationUserUseCase,
 	}

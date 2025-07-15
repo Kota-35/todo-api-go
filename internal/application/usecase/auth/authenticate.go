@@ -39,7 +39,9 @@ func NewAuthenticateUserUseCase(
 	}
 }
 
-func (uc *AuthenticateUserUseCase) Execute(input authDTO.AuthenticateUserInput) (*authDTO.AuthenticateUserOutput, error) {
+func (uc *AuthenticateUserUseCase) Execute(
+	input authDTO.AuthenticateUserInput,
+) (*authDTO.AuthenticateUserOutput, error) {
 	// ユーザーの取得
 	emailVO, err := valueobject.NewEmail(input.Email)
 	if err != nil {

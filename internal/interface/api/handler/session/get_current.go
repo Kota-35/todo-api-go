@@ -13,7 +13,9 @@ type GetCurrentSessionHandler struct {
 	getCurrentSessionUseCase auth.GetCurrentSessionUseCase
 }
 
-func NewGetCurrentSessionHandler(getCurrentSessionUseCase auth.GetCurrentSessionUseCase) *GetCurrentSessionHandler {
+func NewGetCurrentSessionHandler(
+	getCurrentSessionUseCase auth.GetCurrentSessionUseCase,
+) *GetCurrentSessionHandler {
 	return &GetCurrentSessionHandler{
 		getCurrentSessionUseCase: getCurrentSessionUseCase,
 	}

@@ -63,7 +63,15 @@ func NewUser(email, username, password string) (*User, error) {
 }
 
 // 復元用コンストラクタ(DB取得時)
-func ReconstructUser(id string, email string, username string, passwordHash string, isActive bool, createdAt time.Time, updatedAt time.Time) (*User, error) {
+func ReconstructUser(
+	id string,
+	email string,
+	username string,
+	passwordHash string,
+	isActive bool,
+	createdAt time.Time,
+	updatedAt time.Time,
+) (*User, error) {
 	emailVO, err := valueobject.NewEmail(email)
 	if err != nil {
 		return nil, err

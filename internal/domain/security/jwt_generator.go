@@ -31,7 +31,11 @@ func NewJWTGenerator(jwtSecret string) JWTGenerator {
 	}
 }
 
-func (g *jwtGenerator) GenerateAccessToken(uid string, rtID string, expiresAt time.Time) (string, error) {
+func (g *jwtGenerator) GenerateAccessToken(
+	uid string,
+	rtID string,
+	expiresAt time.Time,
+) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id":          uid,
 		"refresh_token_id": rtID,
@@ -60,7 +64,10 @@ func (g *jwtGenerator) VerifyAccessToken(tokenString string) (*JWTClaims, error)
 		&jwt.MapClaims{},
 		func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("[jwtGenerator]Unexpected signing method: %v", token.Header["alg"])
+				return nil, fmt.Errorf(
+					"[jwtGenerator]Unexpected signing method: %v",
+					token.Header["alg"],
+				)
 			}
 			return []byte(g.jwtSecret), nil
 		},

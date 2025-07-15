@@ -7,4 +7,14 @@
         "stretchr",
         "valueobject"
     ],
+    "go.formatTool": "custom",
+    "go.alternateTools": {
+        "customFormatter": "golines"
+    },
+    "go.formatFlags": [
+        "--max-len=80"
+    ],
+    "[go]": {
+        "editor.formatOnSave": true
+    }
 }

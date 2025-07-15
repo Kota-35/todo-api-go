@@ -23,18 +23,26 @@ func NewGetCurrentSessionUseCase(
 	}
 }
 
-func (uc *GetCurrentSessionUseCase) Execute(input authDTO.GetCurrentSessionInput) (*authDTO.GetCurrentSessionOutput, error) {
+func (uc *GetCurrentSessionUseCase) Execute(
+	input authDTO.GetCurrentSessionInput,
+) (*authDTO.GetCurrentSessionOutput, error) {
 	// アクセストークンの検証
 	claims, err := uc.jwtGenerator.VerifyAccessToken(input.JWTToken)
 
 	if err != nil {
-		return nil, fmt.Errorf("[GetCurrentSessionUseCase]トークンの検証に失敗しました: %w", err)
+		return nil, fmt.Errorf(
+			"[GetCurrentSessionUseCase]トークンの検証に失敗しました: %w",
+			err,
+		)
 	}
 
 	user, err := uc.userRepo.FindByID(claims.UserID)
 
 	if err != nil {
-		return nil, fmt.Errorf("[GetCurrentSessionUseCase]ユーザーの取得に失敗しました: %w", err)
+		return nil, fmt.Errorf(
+			"[GetCurrentSessionUseCase]ユーザーの取得に失敗しました: %w",
+			err,
+		)
 	}
 
 	return &authDTO.GetCurrentSessionOutput{
