@@ -10,11 +10,11 @@ import (
 )
 
 type GetCurrentSessionHandler struct {
-	getCurrentSessionUseCase auth.GetCurrentSessionUseCase
+	getCurrentSessionUseCase *auth.GetCurrentSessionUseCase
 }
 
 func NewGetCurrentSessionHandler(
-	getCurrentSessionUseCase auth.GetCurrentSessionUseCase,
+	getCurrentSessionUseCase *auth.GetCurrentSessionUseCase,
 ) *GetCurrentSessionHandler {
 	return &GetCurrentSessionHandler{
 		getCurrentSessionUseCase: getCurrentSessionUseCase,

@@ -48,6 +48,7 @@ func (h *SessionRefreshHandler) Handle(c *gin.Context) {
 	output, err := h.refreshSessionUseCase.Execute(&input)
 	if err != nil {
 		response.AbortWithUnauthorizedError(c, "認証に失敗しました", err)
+		return
 	}
 
 	cfg := config.LoadEnv()
