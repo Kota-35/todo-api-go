@@ -39,11 +39,24 @@ func (s *sessionRepository) Save(session *entity.Session) error {
 
 		return session.SetID(createdSession.ID)
 	} else {
-		return fmt.Errorf("[sessionRepository]セッションの更新はできません")
+		// 更新
+		_, err := s.client.Session.FindUnique(
+			db.Session.ID.Equals(session.ID()),
+		).Update(
+			db.Session.IsRevoked.Set(session.IsRevoked()),
+		).Exec(ctx)
+
+		if err != nil {
+			return fmt.Errorf("[sessionRepository]セッションの更新に失敗しました: %w", err)
+		}
 	}
+
+	return nil
 }
 
-func (s *sessionRepository) FindByToken(token *valueobject.RefreshToken) (*entity.Session, error) {
+func (s *sessionRepository) FindByToken(
+	token *valueobject.RefreshToken,
+) (*entity.Session, error) {
 	ctx := context.Background()
 
 	session, err := s.client.Session.FindUnique(

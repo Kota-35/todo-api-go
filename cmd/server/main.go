@@ -43,11 +43,16 @@ func main() {
 	getCurrentSessionUseCase := auth.NewGetCurrentSessionUseCase(
 		jwtGenerator,
 		userRepo,
+		sessionRepo,
 	)
 	refreshSessionUseCase := auth.NewRefreshSessionUseCase(
 		sessionRepo,
 		userRepo,
 		jwtGenerator,
+	)
+	logoutUseCase := auth.NewLogoutUserCase(
+		pepper,
+		sessionRepo,
 	)
 
 	// ハンドラーの初期化
@@ -60,16 +65,22 @@ func main() {
 		authenticateUserUseCase,
 	)
 	getCurrentSessionHandler := sessionHandler.NewGetCurrentSessionHandler(
-		*getCurrentSessionUseCase,
+		getCurrentSessionUseCase,
 	)
 	sessionRefreshHandler := sessionHandler.NewSessionRefreshHandler(
 		&pepper,
 		refreshSessionUseCase,
 	)
+	logoutUserHandler := sessionHandler.NewLogoutUserHandler(
+		jwtGenerator,
+		logoutUseCase,
+	)
+
 	sessionHandler := sessionHandler.NewSessionHandler(
 		loginUserHandler,
 		getCurrentSessionHandler,
 		sessionRefreshHandler,
+		logoutUserHandler,
 	)
 
 	// Ginルーターの初期化
