@@ -1,4 +1,4 @@
-name: Docker Build & Push 
+name: Cloud Run Deploy
 
 on:
   push:
@@ -6,14 +6,16 @@ on:
       - main
   workflow_dispatch:
     
-env:
-  GCP_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
-  GCP_REGION: ${{ secrets.GCP_REGION }}
-
-
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: production
+
+
+    env:
+      GCP_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+      GCP_REGION: ${{ secrets.GCP_REGION }}
+
 
     steps:
       - name: Checkout the repository
@@ -40,7 +42,14 @@ jobs:
           gcloud auth configure-docker us-docker.pkg.dev
 
       - name: Build a docker image
-        run: docker build -t us-docker.pkg.dev/${{ env.GCP_PROJECT }}/todo-server/todo-server:${GITHUB_SHA::7} .
+        run: docker build -t us-docker.pkg.dev/${{ env.GCP_PROJECT }}/todo-app-server/todo-app-server:${GITHUB_SHA::7} .
 
       - name: Push the docker image
-        run: docker push us-docker.pkg.dev/${{ env.GCP_PROJECT }}/todo-server/todo-server:${GITHUB_SHA::7}
+        run: docker push us-docker.pkg.dev/${{ env.GCP_PROJECT }}/todo-app-server/todo-app-server:${GITHUB_SHA::7}
+
+
+      - name: Deploy 
+        run: gcloud run deploy todo-app-server \
+              --image us-docker.pkg.dev/${{ env.GCP_PROJECT }}/todo-app-server/todo-app-server:${GITHUB_SHA::7} \
+              --allow-unauthenticated \
+              --set-env-vars "DATABASE_URL=${{ secrets.DATABASE_URL }},ENV=${{ secrets.ENV }},JWT_SECRET=${{ secrets.JWT_SECRET }}"
