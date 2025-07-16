@@ -1,3 +1,5 @@
 .env
+.env.production
+.env.local
 
 .DS_Store

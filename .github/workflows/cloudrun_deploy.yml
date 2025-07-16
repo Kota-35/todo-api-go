@@ -51,5 +51,6 @@ jobs:
       - name: Deploy 
         run: gcloud run deploy todo-app-server \
               --image ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/todo-app-server/todo-app-server:${GITHUB_SHA::7} \
+              --region ${{ env.GCP_REGION }}
               --allow-unauthenticated \
-              --set-env-vars "DATABASE_URL=${{ secrets.DATABASE_URL }},ENV=${{ secrets.ENV }},JWT_SECRET=${{ secrets.JWT_SECRET }}"
+              --set-env-vars DATABASE_URL=${{ secrets.DATABASE_URL }},ENV=${{ secrets.ENV }},JWT_SECRET=${{ secrets.JWT_SECRET }}
