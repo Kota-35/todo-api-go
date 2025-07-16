@@ -74,8 +74,7 @@ jobs:
             --region=${{ env.GCP_REGION }} \
             --allow-unauthenticated \
             --platform=managed \
-            --verbosity=debug \
-            --service-account=${{ secrets.SERVICE_ACCOUNT }} \
+            --verbosity=info \
             --env-vars-file=env_vars.yaml
           
           echo "✅ Deployment command completed"
