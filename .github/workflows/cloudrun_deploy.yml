@@ -42,6 +42,11 @@ jobs:
 
 
 
+      - name: Check permissions
+        run: |
+          echo "Checking Cloud Run permissions..."
+          gcloud run services list --region=${{ env.GCP_REGION }}
+          
       - name: Deploy 
         timeout-minutes: 20
         run: |
@@ -52,21 +57,37 @@ jobs:
           echo "Region: ${{ env.GCP_REGION }}"
           echo "Project: ${{ env.GCP_PROJECT }}"
           
+          # Create environment variables file to avoid parsing issues
+          cat > env_vars.txt << EOF
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          ENV=${{ secrets.ENV }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          EOF
+          
+          echo "Environment variables:"
+          cat env_vars.txt
+          
           # Deploy to Cloud Run
-          if gcloud run deploy todo-app-server \
+          echo "Executing deployment command..."
+          gcloud run deploy todo-app-server \
             --image=${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/todo-app-server/todo-app-server:${GITHUB_SHA::7} \
             --region=${{ env.GCP_REGION }} \
             --allow-unauthenticated \
             --platform=managed \
             --verbosity=debug \
             --service-account=${{ secrets.SERVICE_ACCOUNT }} \
-            --set-env-vars=DATABASE_URL=${{ secrets.DATABASE_URL }},ENV=${{ secrets.ENV }},JWT_SECRET=${{ secrets.JWT_SECRET }}; then
-            echo "✅ Deployment completed successfully"
-          else
-            echo "❌ Deployment failed"
-            exit 1
-          fi
+            --env-vars-file=env_vars.txt
+          
+          echo "✅ Deployment command completed"
+          
+          # Wait a moment for the service to be available
+          sleep 10
           
           # Verify deployment
           echo "Verifying deployment..."
-          gcloud run services describe todo-app-server --region=${{ env.GCP_REGION }} --format="value(status.url)"
+          if gcloud run services describe todo-app-server --region=${{ env.GCP_REGION }} --format="value(status.url)"; then
+            echo "✅ Service successfully deployed and accessible"
+          else
+            echo "❌ Service verification failed"
+            exit 1
+          fi
