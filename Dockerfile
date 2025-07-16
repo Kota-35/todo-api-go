@@ -5,9 +5,10 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 
+ENV GO111MODULE=on
+
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
-    go build -trimpath -o /main ./cmd/server
+RUN go build -trimpath -o /main ./cmd/server
 
 
 FROM golang:1.24.4-alpine AS runner
