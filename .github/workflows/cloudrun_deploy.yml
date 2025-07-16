@@ -57,15 +57,15 @@ jobs:
           echo "Region: ${{ env.GCP_REGION }}"
           echo "Project: ${{ env.GCP_PROJECT }}"
           
-          # Create environment variables file to avoid parsing issues
-          cat > env_vars.txt << EOF
-          DATABASE_URL=${{ secrets.DATABASE_URL }}
-          ENV=${{ secrets.ENV }}
-          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          # Create environment variables file in YAML format
+          cat > env_vars.yaml << EOF
+          DATABASE_URL: "${{ secrets.DATABASE_URL }}"
+          ENV: "${{ secrets.ENV }}"
+          JWT_SECRET: "${{ secrets.JWT_SECRET }}"
           EOF
           
           echo "Environment variables:"
-          cat env_vars.txt
+          cat env_vars.yaml
           
           # Deploy to Cloud Run
           echo "Executing deployment command..."
@@ -76,7 +76,7 @@ jobs:
             --platform=managed \
             --verbosity=debug \
             --service-account=${{ secrets.SERVICE_ACCOUNT }} \
-            --env-vars-file=env_vars.txt
+            --env-vars-file=env_vars.yaml
           
           echo "✅ Deployment command completed"
           
