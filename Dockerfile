@@ -7,6 +7,10 @@ RUN apk add --no-cache git ca-certificates
 # Set working directory
 WORKDIR /app
 
+# Ensure Go modules mode is enabled
+ENV GO111MODULE=on
+ENV GOPATH=""
+
 # Copy go mod files
 COPY go.mod go.sum ./
 
@@ -17,9 +21,8 @@ RUN go mod verify
 # Copy source code
 COPY . .
 
-# Tidy up modules and build the application
-RUN go mod tidy
-RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/server/main.go
+# Build the application (build the module, not just the main file)
+RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/server
 
 # Runtime stage
 FROM alpine:latest
