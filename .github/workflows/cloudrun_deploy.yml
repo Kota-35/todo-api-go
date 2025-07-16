@@ -64,9 +64,14 @@ jobs:
         uses: 'google-github-actions/setup-gcloud@v2'
 
       - name: Deploy 
+        timeout-minutes: 20
         run: |
           gcloud run deploy todo-app-server \
             --image=${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/todo-app-server/todo-app-server:${GITHUB_SHA::7} \
             --region=${{ env.GCP_REGION }} \
             --allow-unauthenticated \
+            --format="text" \
+            --verbosity=info \
             --set-env-vars=DATABASE_URL=${{ secrets.DATABASE_URL }},ENV=${{ secrets.ENV }},JWT_SECRET=${{ secrets.JWT_SECRET }}
+          
+          echo "Deployment completed successfully"
