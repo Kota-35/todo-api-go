@@ -94,5 +94,9 @@ func main() {
 	}
 
 	// サーバーの起動
-	router.Run(":8080")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // デフォルトポート
+	}
+	router.Run(":" + port)
 }
