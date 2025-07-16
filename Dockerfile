@@ -8,7 +8,7 @@ RUN go mod download
 ENV GO111MODULE=on
 
 COPY . .
-RUN go build -trimpath -o /main ./cmd/server
+RUN go build -o /main ./cmd/server
 
 
 FROM golang:1.24.4-alpine AS runner
