@@ -65,7 +65,6 @@ jobs:
 
       - name: Deploy 
         run: |
-          set -e
           gcloud run deploy todo-app-server \
             --image=${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/todo-app-server/todo-app-server:${GITHUB_SHA::7} \
             --region=${{ env.GCP_REGION }} \
