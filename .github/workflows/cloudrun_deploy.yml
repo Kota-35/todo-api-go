@@ -21,13 +21,6 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v4    
 
-      - name: 'Create env file'
-        run: |
-          touch .env
-          # config
-          echo ENV=${{ secrets.ENV }} >> .env
-          cat .env
-
       - id: 'auth'
         uses: 'google-github-actions/auth@v2'
         with:
@@ -47,6 +40,27 @@ jobs:
       - name: Push the docker image
         run: docker push ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/todo-app-server/todo-app-server:${GITHUB_SHA::7}
 
+
+        
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    env:
+      GCP_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+      GCP_REGION: ${{ secrets.GCP_REGION }}
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4    
+
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}'
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
 
       - name: Deploy 
         run: gcloud run deploy todo-app-server \
