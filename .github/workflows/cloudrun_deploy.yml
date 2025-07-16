@@ -41,27 +41,6 @@ jobs:
         run: docker push ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/todo-app-server/todo-app-server:${GITHUB_SHA::7}
 
 
-        
-  deploy:
-    runs-on: ubuntu-latest
-    environment: production
-    needs: build
-
-    env:
-      GCP_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
-      GCP_REGION: ${{ secrets.GCP_REGION }}
-
-    steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v4    
-
-      - id: 'auth'
-        uses: 'google-github-actions/auth@v2'
-        with:
-          credentials_json: '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}'
-
-      - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v2'
 
       - name: Deploy 
         timeout-minutes: 20
@@ -72,6 +51,7 @@ jobs:
             --allow-unauthenticated \
             --format="text" \
             --verbosity=info \
+            --service-account=${{ secrets.SERVICE_ACCOUNT }} \
             --set-env-vars=DATABASE_URL=${{ secrets.DATABASE_URL }},ENV=${{ secrets.ENV }},JWT_SECRET=${{ secrets.JWT_SECRET }}
           
           echo "Deployment completed successfully"
