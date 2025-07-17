@@ -11,11 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
 
-
     env:
       GCP_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
       GCP_REGION: ${{ secrets.GCP_REGION }}
-
 
     steps:
       - name: Checkout the repository
@@ -40,7 +38,6 @@ jobs:
           go mod tidy
           go mod verify
 
-
       - name: Configure docker for artifact registry
         run: |
           gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev
@@ -51,51 +48,25 @@ jobs:
       - name: Push the docker image
         run: docker push ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/todo-app-server/todo-app-server:${GITHUB_SHA::7}
 
-      - name: Check permissions
-        run: |
-          echo "Checking Cloud Run permissions..."
-          gcloud run services list --region=${{ env.GCP_REGION }}
-          
-      - name: Deploy 
+      - name: Deploy to Cloud Run
         timeout-minutes: 20
         run: |
           set -euo pipefail
           
-          echo "Starting deployment..."
-          echo "Image: ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/todo-app-server/todo-app-server:${GITHUB_SHA::7}"
-          echo "Region: ${{ env.GCP_REGION }}"
-          echo "Project: ${{ env.GCP_PROJECT }}"
-          
-          # Create environment variables file in YAML format
+          # Create environment variables file
           cat > env_vars.yaml << EOF
           DATABASE_URL: "${{ secrets.DATABASE_URL }}"
           ENV: "${{ secrets.ENV }}"
           JWT_SECRET: "${{ secrets.JWT_SECRET }}"
           EOF
           
-          echo "Environment variables:"
-          cat env_vars.yaml
-          
           # Deploy to Cloud Run
-          echo "Executing deployment command..."
           gcloud run deploy todo-app-server \
             --image=${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/todo-app-server/todo-app-server:${GITHUB_SHA::7} \
             --region=${{ env.GCP_REGION }} \
             --allow-unauthenticated \
             --platform=managed \
-            --verbosity=info \
             --env-vars-file=env_vars.yaml
           
-          echo "✅ Deployment command completed"
-          
-          # Wait a moment for the service to be available
-          sleep 10
-          
           # Verify deployment
-          echo "Verifying deployment..."
-          if gcloud run services describe todo-app-server --region=${{ env.GCP_REGION }} --format="value(status.url)"; then
-            echo "✅ Service successfully deployed and accessible"
-          else
-            echo "❌ Service verification failed"
-            exit 1
-          fi
+          gcloud run services describe todo-app-server --region=${{ env.GCP_REGION }} --format="value(status.url)"
