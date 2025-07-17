@@ -9,10 +9,14 @@ WORKDIR /app
 # Set Go module mode explicitly and disable GOPATH
 ENV GO111MODULE=on
 ENV GOPROXY=https://proxy.golang.org,direct
-ENV GOPATH=/dev/null
-ENV GOFLAGS=-mod=mod
+ENV GOPATH=/tmp/gopath
+ENV GOMODCACHE=/tmp/go-mod-cache
 ENV GOCACHE=/tmp/go-cache
 ENV GOTMPDIR=/tmp
+ENV GOFLAGS=-mod=mod
+
+# Create necessary directories
+RUN mkdir -p /tmp/gopath /tmp/go-mod-cache /tmp/go-cache
 
 # Copy mod files first for better caching
 COPY go.mod go.sum ./
