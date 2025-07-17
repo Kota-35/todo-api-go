@@ -4,13 +4,16 @@ import (
 	"os"
 
 	"todo-api-go/internal/application/usecase/auth"
+	"todo-api-go/internal/application/usecase/team"
 	"todo-api-go/internal/application/usecase/user"
 	"todo-api-go/internal/domain/security"
 	"todo-api-go/internal/domain/valueobject"
 	"todo-api-go/internal/infrastructure/persistence/repository"
 
 	sessionHandler "todo-api-go/internal/interface/api/handler/session"
+	teamHandler "todo-api-go/internal/interface/api/handler/team"
 	userHandler "todo-api-go/internal/interface/api/handler/user"
+	"todo-api-go/internal/interface/api/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,11 +30,18 @@ func main() {
 	sessionRepo := repository.NewSessionRepository()
 	jwtGenerator := security.NewJWTGenerator(jwtSecret)
 	refreshTokenGenerator := security.NewRefreshTokenGenerator()
+	teamRepo := repository.NewTeamRepository()
 
 	// 認証用設定
 	pepper := valueobject.Pepper([]byte("default-pepper-key"))
 
+	authMiddleware := middleware.NewAuthMiddleware(
+		jwtGenerator,
+		sessionRepo,
+	)
+
 	// ユースケースの初期化
+	// userのユースケース
 	registerUserUseCase := user.NewRegisterUserUseCase(userRepo)
 	authenticateUserUseCase := auth.NewAuthenticateUserUseCase(
 		userRepo,
@@ -40,6 +50,8 @@ func main() {
 		refreshTokenGenerator,
 		pepper,
 	)
+
+	// authのユースケース
 	getCurrentSessionUseCase := auth.NewGetCurrentSessionUseCase(
 		jwtGenerator,
 		userRepo,
@@ -55,12 +67,17 @@ func main() {
 		sessionRepo,
 	)
 
+	// teamのユースケース
+	createTeamUseCase := team.NewCreateTeamUseCase(teamRepo)
+
 	// ハンドラーの初期化
+	// /usersのハンドラー
 	registerUserHandler := userHandler.NewRegisterUserHandler(
 		registerUserUseCase,
 	)
 	userHandlerInstance := userHandler.NewUserHandler(registerUserHandler)
 
+	// /sessionsのハンドラー
 	loginUserHandler := sessionHandler.NewLoginUserHandler(
 		authenticateUserUseCase,
 	)
@@ -75,12 +92,19 @@ func main() {
 		jwtGenerator,
 		logoutUseCase,
 	)
-
 	sessionHandler := sessionHandler.NewSessionHandler(
 		loginUserHandler,
 		getCurrentSessionHandler,
 		sessionRefreshHandler,
 		logoutUserHandler,
+	)
+
+	// /teamsのハンドラー
+
+	teamCreateHandler := teamHandler.NewCreateTeamHandler(createTeamUseCase)
+	teamHandler := teamHandler.NewTeamHandler(
+		&teamCreateHandler,
+		authMiddleware,
 	)
 
 	// Ginルーターの初期化
@@ -91,6 +115,7 @@ func main() {
 	{
 		userHandlerInstance.RegisterRoutes(v1)
 		sessionHandler.RegisterRoutes(v1)
+		teamHandler.RegisterRoutes(v1)
 	}
 
 	// サーバーの起動
