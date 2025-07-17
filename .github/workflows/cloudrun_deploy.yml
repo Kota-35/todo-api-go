@@ -32,7 +32,13 @@ jobs:
       - name: Set up Go for host steps
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24.4'
+          go-version: '1.23.12'
+
+      - name: Verify Go installation and module
+        run: |
+          go version
+          go mod tidy
+          go mod verify
 
 
       - name: Configure docker for artifact registry
