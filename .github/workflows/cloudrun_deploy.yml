@@ -29,18 +29,21 @@ jobs:
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v2'
 
+      - name: Set up Go for host steps
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.4'
+
 
       - name: Configure docker for artifact registry
         run: |
           gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev
 
       - name: Build a docker image
-        run: docker build -t ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/todo-app-server/todo-app-server:${GITHUB_SHA::7} .
+        run: docker build --pull --no-cache -t ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/todo-app-server/todo-app-server:${GITHUB_SHA::7} .
 
       - name: Push the docker image
         run: docker push ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT }}/todo-app-server/todo-app-server:${GITHUB_SHA::7}
-
-
 
       - name: Check permissions
         run: |
