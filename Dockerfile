@@ -40,15 +40,7 @@ RUN go run github.com/steebchen/prisma-client-go generate --schema=./prisma/sche
 # Verify Prisma client was generated
 RUN ls -la prisma/db/
 
-# Debug: Check if files exist
-RUN ls -la internal/domain/valueobject/
-RUN ls -la internal/application/dto/auth/
-
-# Debug: Check Go module resolution
-RUN unset GOPATH && GO111MODULE=on go list -m all
-RUN unset GOPATH && GO111MODULE=on go list ./internal/domain/valueobject
-
-# Build with explicit module mode (unsetting GOPATH completely)
+# Build with explicit module mode
 RUN cd /app && unset GOPATH && CGO_ENABLED=0 GOOS=linux GO111MODULE=on go build -mod=mod -v -o /main ./cmd/server
 
 
