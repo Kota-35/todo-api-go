@@ -9,29 +9,28 @@ generator db {
 
 // Team model: チーム情報の管理
 model Team {
-    id String @id @default(uuid())
-    name String 
-    description  String?
-    ownerId String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id          String   @id @default(uuid())
+    name        String
+    description String?
+    ownerId     String
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
 
     // Relations
-    owner User @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-    members TeamMember[]
+    owner    User         @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+    members  TeamMember[]
     projects Project[]
 
     @@unique([ownerId, name]) // 同じオーナー下で重複名を禁止
-
 }
 
 // TeamMember model: チームメンバー管理
 model TeamMember {
-    id String @id @default(uuid())
-    teamId String
-    userId String
-    role TeamMemberRole @default(member)
-    joinedAt DateTime @default(now())
+    id       String         @id @default(uuid())
+    teamId   String
+    userId   String
+    role     TeamMemberRole @default(member)
+    joinedAt DateTime       @default(now())
 
     // Relations 
     team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
@@ -41,9 +40,9 @@ model TeamMember {
 }
 
 enum TeamMemberRole {
-    owner 
+    owner
     admin
-    member 
+    member
     viewer
 }
 
@@ -58,15 +57,15 @@ model User {
     updatedAt    DateTime @updatedAt
 
     // Relations
-    ownedProjects  Project[]       @relation("ProjectOwner")
-    projectMembers ProjectMember[]
-    assignedTasks  Task[]          @relation("TaskAssignee")
-    createdTasks   Task[]          @relation("TaskCreator")
-    comments       Comment[]
-    attachments    Attachment[]
-    taskActivities TaskActivity[]
-    sessions  Session[]
-    ownedTeams Team[] @relation("TeamOwner") // 自分がオーナーのチーム
+    ownedProjects   Project[]       @relation("ProjectOwner")
+    projectMembers  ProjectMember[]
+    assignedTasks   Task[]          @relation("TaskAssignee")
+    createdTasks    Task[]          @relation("TaskCreator")
+    comments        Comment[]
+    attachments     Attachment[]
+    taskActivities  TaskActivity[]
+    sessions        Session[]
+    ownedTeams      Team[]          @relation("TeamOwner") // 自分がオーナーのチーム
     teamMemberships TeamMember[] // 参加しているツーム
 }
 
@@ -77,18 +76,17 @@ model Project {
     description String?
     color       String   @default("#d1ffd1")
     ownerId     String
-    teamId String? // チームの所有も可能にする
+    teamId      String // チームの所有も可能にする
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
 
     // Relations
     owner        User            @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-    team Team? @relation(fields: [teamId], references: [id], onDelete: Cascade)
+    team         Team            @relation(fields: [teamId], references: [id], onDelete: Cascade)
     members      ProjectMember[]
     tasks        Task[]
     taskStatuses TaskStatus[]
     tags         Tag[]
-    
 }
 
 // ProjectMember model: プロジェクトメンバー管理
@@ -242,7 +240,6 @@ model Session {
 
     // Relations
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
 
     // 「そのユーザーの有効トークン」を高速検索
     @@index([userId, expiresAt])

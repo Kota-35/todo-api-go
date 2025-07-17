@@ -1,4 +1,4 @@
-.PHONY: build run down db-up
+.PHONY: build run down db-up migrate
 
 build:
 	go build -o bin/server cmd/server/main.go
@@ -14,3 +14,6 @@ db-up:
 
 db-push:
 	go run github.com/steebchen/prisma-client-go db push
+
+migrate:
+	go run github.com/steebchen/prisma-client-go migrate dev
