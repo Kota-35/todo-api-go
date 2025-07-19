@@ -7,13 +7,15 @@ import (
 )
 
 type TeamHandler struct {
-	createTeamHandler *CreateTeamHandler
-	authMiddleware    *middleware.AuthMiddleware
+	createTeamHandler  *CreateTeamHandler
+	authMiddleware     *middleware.AuthMiddleware
+	findMyTeamsHandler *FindMyTeamsHandler
 }
 
 func NewTeamHandler(
 	createTeamHandler *CreateTeamHandler,
 	authMiddleware *middleware.AuthMiddleware,
+	findMyTeamsHandler *FindMyTeamsHandler,
 ) *TeamHandler {
 	return &TeamHandler{
 		createTeamHandler: createTeamHandler,
@@ -27,5 +29,6 @@ func (h *TeamHandler) RegisterRoutes(r *gin.RouterGroup) {
 	{
 		// チーム作成
 		teams.POST("", h.createTeamHandler.Handle)
+		teams.GET("/me", h.findMyTeamsHandler.Handle)
 	}
 }

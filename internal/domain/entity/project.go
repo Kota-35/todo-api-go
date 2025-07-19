@@ -3,6 +3,7 @@ package entity
 import (
 	"errors"
 	"time"
+	"todo-api-go/prisma/db"
 )
 
 type Project struct {
@@ -39,25 +40,36 @@ func NewProject(
 }
 
 func ReconstructProject(
-	id string,
-	name string,
-	description *string,
-	color *string,
-	ownedId string,
-	teamId *string,
-	createdAt time.Time,
-	updatedAt time.Time,
+	projectModel *db.ProjectModel,
 ) Project {
-	return Project{
-		id:          id,
-		name:        name,
-		description: description,
-		color:       color,
-		ownerId:     ownedId,
-		teamId:      teamId,
-		createdAt:   createdAt,
-		updatedAt:   updatedAt,
+	var descPtr *string
+	description, ok := projectModel.Description()
+	if ok {
+		descPtr = &description
 	}
+
+	return Project{
+		id:          projectModel.ID,
+		name:        projectModel.Name,
+		description: descPtr,
+		color:       &projectModel.Color,
+		ownerId:     projectModel.OwnerID,
+		teamId:      &projectModel.TeamID,
+		createdAt:   projectModel.CreatedAt,
+		updatedAt:   projectModel.UpdatedAt,
+	}
+}
+
+// 　プロジェクトモデルの配列からプロジェクトの配列に変換
+func ReconstructProjects(
+	projectModels []db.ProjectModel,
+) []Project {
+	projects := make([]Project, len(projectModels))
+	for i, v := range projectModels {
+		projects[i] = ReconstructProject(&v)
+	}
+
+	return projects
 }
 
 func (p *Project) IsNew() bool {

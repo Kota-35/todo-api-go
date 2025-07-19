@@ -3,6 +3,8 @@ package entity
 import (
 	"errors"
 	"time"
+
+	"todo-api-go/prisma/db"
 )
 
 type Team struct {
@@ -32,21 +34,24 @@ func NewTeam(
 }
 
 func ReconstructTeam(
-	id string,
-	name string,
-	description *string,
-	ownerId string,
-	createdAt time.Time,
-	updatedAt time.Time,
-	projects []Project,
+	teamModel *db.TeamModel,
 ) Team {
+
+	var descPtr *string
+	description, ok := teamModel.Description()
+	if ok {
+		descPtr = &description
+	}
+
+	projects := ReconstructProjects(teamModel.Projects())
+
 	return Team{
-		id:          id,
-		name:        name,
-		description: description,
-		ownerId:     ownerId,
-		createdAt:   createdAt,
-		updatedAt:   updatedAt,
+		id:          teamModel.ID,
+		name:        teamModel.Name,
+		description: descPtr,
+		ownerId:     teamModel.OwnerID,
+		createdAt:   teamModel.CreatedAt,
+		updatedAt:   teamModel.UpdatedAt,
 		projects:    projects,
 	}
 }

@@ -69,6 +69,7 @@ func main() {
 
 	// teamのユースケース
 	createTeamUseCase := team.NewCreateTeamUseCase(teamRepo)
+	findMyTeamsUseCase := team.NewFindMyTeamsUseCase(teamRepo)
 
 	// ハンドラーの初期化
 	// /usersのハンドラー
@@ -102,9 +103,11 @@ func main() {
 	// /teamsのハンドラー
 
 	teamCreateHandler := teamHandler.NewCreateTeamHandler(createTeamUseCase)
+	findMyTeamsHandler := teamHandler.NewFindMyTeamsHandler(findMyTeamsUseCase)
 	teamHandler := teamHandler.NewTeamHandler(
-		&teamCreateHandler,
+		teamCreateHandler,
 		authMiddleware,
+		findMyTeamsHandler,
 	)
 
 	// Ginルーターの初期化

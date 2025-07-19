@@ -30,7 +30,7 @@ func (r *teamRepository) Save(team *entity.Team) error {
 		).Exec(ctx)
 
 		if err != nil {
-			return fmt.Errorf("[userRepository]ユーザーの作成に失敗しました: %w", err)
+			return fmt.Errorf("[teamRepository]チームの作成に失敗しました: %w", err)
 		}
 
 		return team.SetID(createdTeam.ID)
@@ -45,7 +45,7 @@ func (r *teamRepository) Save(team *entity.Team) error {
 		).Exec(ctx)
 
 		if err != nil {
-			return fmt.Errorf("[teamRepository.Save]ユーザーの更新に失敗しました: %w", err)
+			return fmt.Errorf("[teamRepository.Save]チームの更新に失敗しました: %w", err)
 		}
 	}
 
@@ -66,40 +66,45 @@ func (r *teamRepository) FindByID(id string) (*entity.Team, error) {
 		)
 	}
 
-	description, ok := team.Description()
-	var descPtr *string
-	if ok {
-		descPtr = &description
-	}
+	reconstructTeam := entity.ReconstructTeam(team)
 
-	tempProjects := make([]entity.Project, len(team.Projects()))
-	for i, v := range team.Projects() {
-		description, ok := team.Description()
-		var tempDescPtr *string
-		if ok {
-			tempDescPtr = &description
-		}
-		tempProjects[i] = entity.ReconstructProject(
-			v.ID,
-			v.Name,
-			tempDescPtr,
-			&v.Color,
-			v.OwnerID,
-			&v.TeamID,
-			v.CreatedAt,
-			v.UpdatedAt,
+	return &reconstructTeam, nil
+}
+
+// ユーザーIDからチームを全て取得する
+func (r *teamRepository) FindTeamsByUserID(
+	userID string,
+) ([]*entity.Team, error) {
+	ctx := context.Background()
+
+	user, err := r.client.User.FindUnique(
+		db.User.ID.Equals(userID),
+	).With(
+		db.User.TeamMemberships.Fetch().With(
+			db.TeamMember.Team.Fetch(),
+		),
+		db.User.OwnedTeams.Fetch(), // オーナーのチームも取得
+	).Exec(ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf(
+			"[teamRepository.FindByUserID]ユーザーの取得に失敗しました: %w",
+			err,
 		)
 	}
 
-	reconstructTeam := entity.ReconstructTeam(
-		team.ID,
-		team.Name,
-		descPtr,
-		team.OwnerID,
-		team.CreatedAt,
-		team.UpdatedAt,
-		tempProjects,
-	)
+	teams := make([]*entity.Team, 0)
+	// メンバーとして参加しているチーム
+	for _, membership := range user.TeamMemberships() {
+		team := membership.Team()
+		reconstructTeam := entity.ReconstructTeam(team)
+		teams = append(teams, &reconstructTeam)
+	}
 
-	return &reconstructTeam, nil
+	for _, ownedTeam := range user.OwnedTeams() {
+		reconstructTeam := entity.ReconstructTeam(&ownedTeam)
+		teams = append(teams, &reconstructTeam)
+	}
+
+	return teams, nil
 }

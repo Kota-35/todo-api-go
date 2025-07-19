@@ -17,8 +17,8 @@ type CreateTeamHandler struct {
 
 func NewCreateTeamHandler(
 	createTeamUserCase *team.CreateTeamUseCase,
-) CreateTeamHandler {
-	return CreateTeamHandler{
+) *CreateTeamHandler {
+	return &CreateTeamHandler{
 		createTeamUseCase: createTeamUserCase,
 	}
 }
