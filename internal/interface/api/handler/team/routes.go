@@ -18,8 +18,9 @@ func NewTeamHandler(
 	findMyTeamsHandler *FindMyTeamsHandler,
 ) *TeamHandler {
 	return &TeamHandler{
-		createTeamHandler: createTeamHandler,
-		authMiddleware:    authMiddleware,
+		createTeamHandler:  createTeamHandler,
+		authMiddleware:     authMiddleware,
+		findMyTeamsHandler: findMyTeamsHandler,
 	}
 }
 

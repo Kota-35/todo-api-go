@@ -57,6 +57,8 @@ func (r *teamRepository) FindByID(id string) (*entity.Team, error) {
 
 	team, err := r.client.Team.FindUnique(
 		db.Team.ID.Equals(id),
+	).With(
+		db.Team.Projects.Fetch(),
 	).Exec(ctx)
 
 	if err != nil {
@@ -81,9 +83,13 @@ func (r *teamRepository) FindTeamsByUserID(
 		db.User.ID.Equals(userID),
 	).With(
 		db.User.TeamMemberships.Fetch().With(
-			db.TeamMember.Team.Fetch(),
+			db.TeamMember.Team.Fetch().With(
+				db.Team.Projects.Fetch(),
+			),
 		),
-		db.User.OwnedTeams.Fetch(), // オーナーのチームも取得
+		db.User.OwnedTeams.Fetch().With(
+			db.Team.Projects.Fetch(),
+		), // オーナーのチームも取得
 	).Exec(ctx)
 
 	if err != nil {

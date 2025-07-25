@@ -32,6 +32,7 @@ func (h *FindMyTeamsHandler) Handle(c *gin.Context) {
 	if err != nil {
 		fmt.Println(err.Error())
 		response.InternalServerError(c, "処理中にエラーが発生しました", err)
+		return
 	}
 
 	response.OK(c, "ユーザーのチームを取得しました", output)

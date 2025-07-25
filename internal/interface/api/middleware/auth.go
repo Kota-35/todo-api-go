@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"time"
 	"todo-api-go/internal/domain/repository"
 	"todo-api-go/internal/domain/security"
@@ -30,6 +31,7 @@ func (am *AuthMiddleware) RequireAuth() gin.HandlerFunc {
 		// 1. クッキーからJWTを取得
 		accessToken, err := c.Cookie("__Host-session")
 		if err != nil {
+			fmt.Println("アクセストークンがありません", err)
 			response.AbortWithUnauthorizedError(c, "アクセストークンがありません", err)
 			return
 		}
@@ -37,6 +39,7 @@ func (am *AuthMiddleware) RequireAuth() gin.HandlerFunc {
 		// 2. JWTを検証
 		claims, err := am.jwtGenerator.VerifyAccessToken(accessToken)
 		if err != nil {
+			fmt.Println("無効なアクセストークンです", err)
 			response.AbortWithUnauthorizedError(c, "無効なアクセストークンです", err)
 			return
 		}
@@ -44,16 +47,19 @@ func (am *AuthMiddleware) RequireAuth() gin.HandlerFunc {
 		// 3. セッションの有効性を確認
 		session, err := am.sessionRepo.FindByID(claims.RefreshTokenID)
 		if err != nil {
+			fmt.Println("セッションが見つかりません", err)
 			response.AbortWithUnauthorizedError(c, "セッションが見つかりません", err)
 			return
 		}
 
 		if session.IsRevoked() {
+			fmt.Println("無効なセッションです", err)
 			response.AbortWithUnauthorizedError(c, "無効なセッションです", err)
 			return
 		}
 
 		if !session.IsActive(time.Now()) {
+			fmt.Println("無効なセッションです", err)
 			response.AbortWithUnauthorizedError(c, "無効なセッションです", err)
 			return
 		}
