@@ -43,18 +43,18 @@ func Created(c *gin.Context, message string, data interface{}) {
 }
 
 func BadRequest(c *gin.Context, message string, err error) {
-	c.JSON(http.StatusBadRequest, APIResponse{
+	c.AbortWithStatusJSON(http.StatusBadRequest, APIResponse{
 		Success: false,
 		Message: message,
 		Error: &ErrorInfo{
-			Code:    "UNAUTHORIZED",
+			Code:    "BAD_REQUEST",
 			Message: err.Error(),
 		},
 	})
 }
 
 func Conflict(c *gin.Context, message string, err error) {
-	c.JSON(http.StatusConflict, APIResponse{
+	c.AbortWithStatusJSON(http.StatusConflict, APIResponse{
 		Success: false,
 		Message: message,
 		Error: &ErrorInfo{
@@ -66,7 +66,7 @@ func Conflict(c *gin.Context, message string, err error) {
 }
 
 func InternalServerError(c *gin.Context, message string, err error) {
-	c.JSON(http.StatusInternalServerError, APIResponse{
+	c.AbortWithStatusJSON(http.StatusInternalServerError, APIResponse{
 		Success: false,
 		Message: message,
 		Error: &ErrorInfo{
