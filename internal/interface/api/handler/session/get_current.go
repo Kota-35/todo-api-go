@@ -1,6 +1,8 @@
 package session
 
 import (
+	"fmt"
+	"strings"
 	"todo-api-go/internal/application/usecase/auth"
 	"todo-api-go/internal/interface/api/response"
 
@@ -22,12 +24,19 @@ func NewGetCurrentSessionHandler(
 }
 
 func (h *GetCurrentSessionHandler) Handle(c *gin.Context) {
-	// 1. クッキーからJWTを取得
-	accessToken, err := c.Cookie("__Host-session")
-	if err != nil {
-		response.AbortWithUnauthorizedError(c, "アクセストークンがありません", err)
+	// 1. BearerからJWTを取得
+	authHeader := c.GetHeader("Authorization")
+	if !strings.HasPrefix(authHeader, "Bearer") {
+		fmt.Println("アクセストークンがありません")
+		response.AbortWithUnauthorizedError(
+			c,
+			"アクセストークンがありません",
+			fmt.Errorf("アクセストークンがありません"),
+		)
 		return
 	}
+
+	accessToken := strings.TrimPrefix(authHeader, "Bearer ")
 
 	// 2. ユースケースでトークンを検証
 	input := authDTO.GetCurrentSessionInput{

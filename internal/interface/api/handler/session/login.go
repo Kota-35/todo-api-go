@@ -49,17 +49,6 @@ func (h *LoginUserHandler) Handle(c *gin.Context) {
 	cfg := config.LoadEnv()
 
 	if cfg.Env == "development" {
-		// AccessTokenクッキーの設定
-		c.SetCookie(
-			"__Host-session",
-			output.AccessToken,
-			int(time.Until(output.AccessTokenExpiresAt).Seconds()),
-			"/",
-			"localhost",
-			false, // developmentではHTTPSを使わない場合があるためfalse
-			true,
-		)
-
 		// RefreshTokenクッキーの設定
 		c.SetCookie(
 			"__Host-refresh",
@@ -72,16 +61,6 @@ func (h *LoginUserHandler) Handle(c *gin.Context) {
 		)
 
 	} else if cfg.Env == "production" {
-		// AccessTokenクッキーの設定
-		c.SetCookie(
-			"__Host-session",
-			output.AccessToken,
-			int(time.Until(output.AccessTokenExpiresAt).Seconds()),
-			"/",
-			"localhost", // productionでは適切なドメインに変更
-			true,
-			true,
-		)
 
 		// RefreshTokenクッキーの設定
 		c.SetCookie(
@@ -95,5 +74,10 @@ func (h *LoginUserHandler) Handle(c *gin.Context) {
 		)
 	}
 
-	response.OK(c, "ログインしました", nil)
+	data := map[string]string{
+		"accessToken": output.AccessToken,
+		"expiresAt":   output.AccessTokenExpiresAt.Format(time.RFC3339),
+	}
+
+	response.OK(c, "ログインしました", data)
 }

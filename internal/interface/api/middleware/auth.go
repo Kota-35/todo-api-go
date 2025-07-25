@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"strings"
 	"time"
 	"todo-api-go/internal/domain/repository"
 	"todo-api-go/internal/domain/security"
@@ -28,13 +29,19 @@ func NewAuthMiddleware(
 // 認証が必要なエンドポイント用のミドルウェア
 func (am *AuthMiddleware) RequireAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// 1. クッキーからJWTを取得
-		accessToken, err := c.Cookie("__Host-session")
-		if err != nil {
-			fmt.Println("アクセストークンがありません", err)
-			response.AbortWithUnauthorizedError(c, "アクセストークンがありません", err)
+		// 1. BearerからJWTを取得
+		authHeader := c.GetHeader("Authorization")
+		if !strings.HasPrefix(authHeader, "Bearer") {
+			fmt.Println("アクセストークンがありません")
+			response.AbortWithUnauthorizedError(
+				c,
+				"アクセストークンがありません",
+				fmt.Errorf("アクセストークンがありません"),
+			)
 			return
 		}
+
+		accessToken := strings.TrimPrefix(authHeader, "Bearer ")
 
 		// 2. JWTを検証
 		claims, err := am.jwtGenerator.VerifyAccessToken(accessToken)

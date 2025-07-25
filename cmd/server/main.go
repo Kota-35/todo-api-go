@@ -98,6 +98,7 @@ func main() {
 		getCurrentSessionHandler,
 		sessionRefreshHandler,
 		logoutUserHandler,
+		authMiddleware,
 	)
 
 	// /teamsのハンドラー

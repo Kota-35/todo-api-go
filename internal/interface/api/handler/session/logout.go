@@ -2,6 +2,7 @@ package session
 
 import (
 	"fmt"
+	"strings"
 	"todo-api-go/internal/application/usecase/auth"
 	"todo-api-go/internal/config"
 	"todo-api-go/internal/domain/security"
@@ -29,14 +30,19 @@ func NewLogoutUserHandler(
 }
 
 func (h *LogoutUserHandler) Handle(c *gin.Context) {
-	// 1. クッキーからJWTを取得
-	accessToken, err := c.Cookie("__Host-session")
-	if err != nil {
-		fmt.Print("[NewLogoutUserHandler]クッキーの取得に失敗しました:\n", err)
-		h.clearCookies(c)
-		response.OK(c, "ログアウトしました", nil)
+	// 1. BearerからJWTを取得
+	authHeader := c.GetHeader("Authorization")
+	if !strings.HasPrefix(authHeader, "Bearer") {
+		fmt.Println("アクセストークンがありません")
+		response.AbortWithUnauthorizedError(
+			c,
+			"アクセストークンがありません",
+			fmt.Errorf("アクセストークンがありません"),
+		)
 		return
 	}
+
+	accessToken := strings.TrimPrefix(authHeader, "Bearer ")
 
 	// 2. JWTを検証
 	claims, err := h.jwtGenerator.VerifyAccessToken(accessToken)
