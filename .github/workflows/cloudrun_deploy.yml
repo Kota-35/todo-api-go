@@ -1,10 +1,7 @@
 name: Cloud Run Deploy
 
 on:
-  pull_request:
-    types: [closed]
-    branches:
-      - main
+  push: 
   workflow_dispatch:
     
 jobs:
