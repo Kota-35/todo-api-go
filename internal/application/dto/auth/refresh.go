@@ -10,6 +10,6 @@ type RefreshSessionInput struct {
 }
 
 type RefreshSessionOutput struct {
-	AccessToken          string
-	AccessTokenExpiresAt time.Time
+	AccessToken          string    `json:"accessToken"`
+	AccessTokenExpiresAt time.Time `json:"expiresAt"`
 }

@@ -76,51 +76,27 @@ func (h *LogoutUserHandler) Handle(c *gin.Context) {
 
 func (h *LogoutUserHandler) clearCookies(c *gin.Context) {
 	cfg := config.LoadEnv()
+	isSecure := cfg.ShouldUseSecureCookies()
 
-	if cfg.Env == "development" {
-		// AccessTokenクッキーの設定
-		c.SetCookie(
-			"__Host-session",
-			"",
-			-1,
-			"/",
-			"",
-			false, // developmentではHTTPSを使わない場合があるためfalse
-			true,
-		)
+	// AccessTokenクッキーのクリア
+	c.SetCookie(
+		"__Host-session",
+		"",
+		-1,
+		"/",
+		"",
+		isSecure,
+		true,
+	)
 
-		// RefreshTokenクッキーの設定
-		c.SetCookie(
-			"__Host-refresh",
-			"",
-			-1,
-			"/",
-			"",
-			false, // developmentではHTTPSを使わない場合があるためfalse
-			true,
-		)
-
-	} else if cfg.Env == "production" {
-		// AccessTokenクッキーの設定
-		c.SetCookie(
-			"__Host-session",
-			"",
-			-1,
-			"/",
-			"", // productionでは適切なドメインに変更
-			true,
-			true,
-		)
-
-		// RefreshTokenクッキーの設定
-		c.SetCookie(
-			"__Host-refresh",
-			"",
-			-1,
-			"/",
-			"", // productionでは適切なドメインに変更
-			true,
-			true,
-		)
-	}
+	// RefreshTokenクッキーのクリア
+	c.SetCookie(
+		"__Host-refresh",
+		"",
+		-1,
+		"/",
+		"",
+		isSecure,
+		true,
+	)
 }

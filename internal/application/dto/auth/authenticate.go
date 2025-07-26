@@ -8,8 +8,8 @@ type AuthenticateUserInput struct {
 }
 
 type AuthenticateUserOutput struct {
-	AccessToken           string
-	AccessTokenExpiresAt  time.Time
-	RefreshToken          string
-	RefreshTokenExpiresAt time.Time
+	AccessToken           string    `json:"accessToken"`
+	AccessTokenExpiresAt  time.Time `json:"accessTokenExpiresAt"`
+	RefreshToken          string    `json:"refreshToken"`
+	RefreshTokenExpiresAt time.Time `json:"refreshTokenExpiresAt"`
 }

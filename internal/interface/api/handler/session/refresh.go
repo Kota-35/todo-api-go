@@ -1,9 +1,8 @@
 package session
 
 import (
-	"time"
+	"fmt"
 	"todo-api-go/internal/application/usecase/auth"
-	"todo-api-go/internal/config"
 	"todo-api-go/internal/domain/valueobject"
 	"todo-api-go/internal/interface/api/response"
 
@@ -30,6 +29,7 @@ func NewSessionRefreshHandler(
 func (h *SessionRefreshHandler) Handle(c *gin.Context) {
 	refreshToken, err := c.Cookie("__Host-refresh")
 	if err != nil {
+		fmt.Println("リフレッシュトークンがありません")
 		response.AbortWithUnauthorizedError(c, "リフレッシュトークンがありません", err)
 		return
 	}
@@ -37,6 +37,7 @@ func (h *SessionRefreshHandler) Handle(c *gin.Context) {
 	// リフレッシュトークンの検証 valueobject
 	refreshTokenVO, err := valueobject.NewRefreshToken(refreshToken, *h.pepper)
 	if err != nil {
+		fmt.Println("リフレッシュトークンが正しくありません")
 		response.AbortWithUnauthorizedError(c, "リフレッシュトークンが正しくありません", err)
 		return
 	}
@@ -47,38 +48,10 @@ func (h *SessionRefreshHandler) Handle(c *gin.Context) {
 
 	output, err := h.refreshSessionUseCase.Execute(&input)
 	if err != nil {
+		fmt.Println("認証に失敗しました")
 		response.AbortWithUnauthorizedError(c, "認証に失敗しました", err)
 		return
 	}
 
-	cfg := config.LoadEnv()
-
-	if cfg.Env == "development" {
-		// AccessTokenクッキーの設定
-		c.SetCookie(
-			"__Host-session",
-			output.AccessToken,
-			int(time.Until(output.AccessTokenExpiresAt).Seconds()),
-			"/",
-			"localhost",
-			false, // developmentではHTTPSを使わない場合があるためfalse
-			true,
-		)
-
-	} else if cfg.Env == "production" {
-		// AccessTokenクッキーの設定
-		c.SetCookie(
-			"__Host-session",
-			output.AccessToken,
-			int(time.Until(output.AccessTokenExpiresAt).Seconds()),
-			"/",
-			"localhost", // productionでは適切なドメインに変更
-			true,
-			true,
-		)
-
-	}
-
-	response.OK(c, "アクセストークンを再生成しました", nil)
-
+	response.OK(c, "アクセストークンを再生成しました", output)
 }
