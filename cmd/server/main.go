@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"todo-api-go/internal/application/usecase/auth"
 	"todo-api-go/internal/application/usecase/team"
 	"todo-api-go/internal/application/usecase/user"
+	"todo-api-go/internal/config"
 	"todo-api-go/internal/domain/security"
 	"todo-api-go/internal/domain/valueobject"
 	"todo-api-go/internal/infrastructure/persistence/repository"
@@ -20,7 +22,8 @@ import (
 
 func main() {
 	// 環境変数の取得
-	jwtSecret := os.Getenv("JWT_SECRET")
+	cfg := config.LoadEnv()
+	jwtSecret := cfg.JwtSecret
 	if jwtSecret == "" {
 		jwtSecret = "default-secret-key" // 開発用デフォルト値
 	}
@@ -127,5 +130,12 @@ func main() {
 	if port == "" {
 		port = "8080" // デフォルトポート
 	}
-	router.Run(":" + port)
+
+	if cfg.Env == "development" {
+		// HTTPS証明書のパスを環境変数から取得
+		fmt.Println(cfg)
+		router.RunTLS(":"+port, cfg.SslCertPath, cfg.SslKeyPath)
+	} else {
+		router.Run(":" + port)
+	}
 }
