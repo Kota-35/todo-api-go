@@ -25,20 +25,6 @@ jobs:
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v2'
 
-      - name: Set up Go for host steps
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.23.11'
-
-      - name: Verify Go installation and module
-        run: |
-          go version
-          go mod tidy
-          go mod verify
-
-      - name: Create Prisma Client
-        run: |
-          go run github.com/steebchen/prisma-client-go generate --schema=./prisma/schema.prisma
 
 
       - name: Configure docker for artifact registry
