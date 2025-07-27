@@ -36,6 +36,11 @@ jobs:
           go mod tidy
           go mod verify
 
+      - name: Create Prisma Client
+        run: |
+          RUN go run github.com/steebchen/prisma-client-go generate --schema=./prisma/schema.prisma
+
+
       - name: Configure docker for artifact registry
         run: |
           gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev
