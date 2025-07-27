@@ -12,13 +12,14 @@ ENV CGO_ENABLED=0
 
 # Copy mod files first for better caching
 COPY go.mod go.sum ./
-RUN go mod download
+RUN go mod download && go mod verify
 
 # Copy source code
 COPY . .
 
-# Generate Prisma client with module cache
-RUN GOMODCACHE=/go/pkg/mod go run github.com/steebchen/prisma-client-go generate --schema=./prisma/schema.prisma
+# Generate Prisma client using working directory context
+RUN go mod tidy && \
+    go run github.com/steebchen/prisma-client-go generate --schema=./prisma/schema.prisma
 
 # Build application
 RUN go build -o /main ./cmd/server
