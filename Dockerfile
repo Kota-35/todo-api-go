@@ -18,7 +18,7 @@ RUN go mod download
 COPY . .
 
 # Generate Prisma client with module cache
-# RUN GOMODCACHE=/go/pkg/mod go run github.com/steebchen/prisma-client-go generate --schema=./prisma/schema.prisma
+RUN GOMODCACHE=/go/pkg/mod go run github.com/steebchen/prisma-client-go generate --schema=./prisma/schema.prisma
 
 # Build application
 RUN go build -o /main ./cmd/server
