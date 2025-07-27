@@ -17,18 +17,11 @@ RUN go mod download && go mod verify
 # Copy source code
 COPY . .
 
-# Debug: Check environment and generate Prisma client
-RUN echo "=== Working directory ===" && \
-    pwd && \
-    echo "=== Files in current directory ===" && \
-    ls -la && \
-    echo "=== go.mod content ===" && \
-    cat go.mod && \
-    echo "=== Module list containing prisma ===" && \
-    go list -m all | grep -i prisma || echo "No prisma modules found" && \
-    echo "=== Go environment ===" && \
-    go env GOMOD GOPATH GOROOT && \
-    echo "=== Attempting to run prisma-client-go ===" && \
+# Add missing dependencies and generate Prisma client
+RUN go get github.com/joho/godotenv@v1.5.1 && \
+    go get github.com/shopspring/decimal@v1.4.0 && \
+    go get github.com/steebchen/prisma-client-go@v0.47.0 && \
+    go mod tidy && \
     go run github.com/steebchen/prisma-client-go generate --schema=./prisma/schema.prisma
 
 # Build application
