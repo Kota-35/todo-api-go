@@ -24,7 +24,6 @@ Thumbs.db
 *.log
 
 # Generated Prisma client files (will be regenerated in Docker)
-prisma/db/
 prisma/query-engine-*
 
 # Git
