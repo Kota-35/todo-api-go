@@ -12,20 +12,17 @@ type Project struct {
 	description *string
 	color       *string
 	ownerId     string
-	teamId      *string
+	teamId      string
 	createdAt   time.Time
 	updatedAt   time.Time
 }
 
 func NewProject(
-	id string,
 	name string,
 	description *string,
 	color *string,
 	ownedId string,
-	teamId *string,
-	createdAt time.Time,
-	updatedAt time.Time,
+	teamId string,
 ) Project {
 	return Project{
 		id:          "",
@@ -34,8 +31,8 @@ func NewProject(
 		color:       color,
 		ownerId:     ownedId,
 		teamId:      teamId,
-		createdAt:   createdAt,
-		updatedAt:   updatedAt,
+		createdAt:   time.Now(),
+		updatedAt:   time.Now(),
 	}
 }
 
@@ -54,7 +51,7 @@ func ReconstructProject(
 		description: descPtr,
 		color:       &projectModel.Color,
 		ownerId:     projectModel.OwnerID,
-		teamId:      &projectModel.TeamID,
+		teamId:      projectModel.TeamID,
 		createdAt:   projectModel.CreatedAt,
 		updatedAt:   projectModel.UpdatedAt,
 	}
@@ -92,7 +89,7 @@ func (p *Project) OwnerID() string {
 	return p.ownerId
 }
 
-func (p *Project) TeamId() *string {
+func (p *Project) TeamId() string {
 	return p.teamId
 }
 
@@ -110,4 +107,8 @@ func (p *Project) SetID(id string) error {
 
 	p.id = id
 	return nil
+}
+
+func (p *Project) ID() string {
+	return p.id
 }
