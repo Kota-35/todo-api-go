@@ -17,6 +17,17 @@ RUN go mod download && go mod verify
 # Copy source code
 COPY . .
 
+# Debug and generate Prisma client
+RUN echo "=== Module list before tidy ===" && \
+    go list -m all | grep prisma || echo "No prisma modules found" && \
+    echo "=== Running go mod tidy ===" && \
+    go mod tidy && \
+    echo "=== Module list after tidy ===" && \
+    go list -m all | grep prisma || echo "No prisma modules found" 
+    
+    
+RUN echo "=== Trying to run prisma-client-go ===" && \
+    go run github.com/steebchen/prisma-client-go generate --schema=./prisma/schema.prisma
 
 # Build application
 RUN go build -o /main ./cmd/server
