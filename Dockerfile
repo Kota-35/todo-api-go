@@ -17,10 +17,11 @@ RUN go mod download && go mod verify
 # Copy source code
 COPY . .
 
-# Generate Prisma client
+# Generate Prisma client and update dependencies
 RUN go mod tidy && \
     go get github.com/steebchen/prisma-client-go@v0.47.0 && \
-    go run github.com/steebchen/prisma-client-go generate --schema=./prisma/schema.prisma
+    go run github.com/steebchen/prisma-client-go generate --schema=./prisma/schema.prisma && \
+    go mod tidy
 
 # Build application
 RUN go build -o /main ./cmd/server
