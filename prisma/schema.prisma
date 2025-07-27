@@ -57,15 +57,14 @@ model User {
     updatedAt    DateTime @updatedAt
 
     // Relations
-    ownedProjects   Project[]       @relation("ProjectOwner")
-    projectMembers  ProjectMember[]
-    assignedTasks   Task[]          @relation("TaskAssignee")
-    createdTasks    Task[]          @relation("TaskCreator")
+    ownedProjects   Project[]      @relation("ProjectOwner")
+    assignedTasks   Task[]         @relation("TaskAssignee")
+    createdTasks    Task[]         @relation("TaskCreator")
     comments        Comment[]
     attachments     Attachment[]
     taskActivities  TaskActivity[]
     sessions        Session[]
-    ownedTeams      Team[]          @relation("TeamOwner") // 自分がオーナーのチーム
+    ownedTeams      Team[]         @relation("TeamOwner") // 自分がオーナーのチーム
     teamMemberships TeamMember[] // 参加しているツーム
 }
 
@@ -74,41 +73,18 @@ model Project {
     id          String   @id @default(uuid())
     name        String
     description String?
-    color       String   @default("#d1ffd1")
+    color       String   @default("#3B82F6")
     ownerId     String
     teamId      String // チームの所有も可能にする
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
 
     // Relations
-    owner        User            @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-    team         Team            @relation(fields: [teamId], references: [id], onDelete: Cascade)
-    members      ProjectMember[]
+    owner        User         @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+    team         Team         @relation(fields: [teamId], references: [id], onDelete: Cascade)
     tasks        Task[]
     taskStatuses TaskStatus[]
     tags         Tag[]
-}
-
-// ProjectMember model: プロジェクトメンバー管理
-model ProjectMember {
-    id        String            @id @default(uuid())
-    projectId String
-    userId    String
-    role      ProjectMemberRole @default(member)
-    joinedAt  DateTime          @default(now())
-
-    // Relations
-    project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-    user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@unique([projectId, userId])
-}
-
-enum ProjectMemberRole {
-    owner
-    admin
-    member
-    viewer
 }
 
 // TaskStatus model: タスクステータス管理
