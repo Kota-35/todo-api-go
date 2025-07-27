@@ -17,8 +17,19 @@ RUN go mod download && go mod verify
 # Copy source code
 COPY . .
 
-# Generate Prisma client without go mod tidy
-RUN go run github.com/steebchen/prisma-client-go generate --schema=./prisma/schema.prisma
+# Debug: Check environment and generate Prisma client
+RUN echo "=== Working directory ===" && \
+    pwd && \
+    echo "=== Files in current directory ===" && \
+    ls -la && \
+    echo "=== go.mod content ===" && \
+    cat go.mod && \
+    echo "=== Module list containing prisma ===" && \
+    go list -m all | grep -i prisma || echo "No prisma modules found" && \
+    echo "=== Go environment ===" && \
+    go env GOMOD GOPATH GOROOT && \
+    echo "=== Attempting to run prisma-client-go ===" && \
+    go run github.com/steebchen/prisma-client-go generate --schema=./prisma/schema.prisma
 
 # Build application
 RUN go build -o /main ./cmd/server
